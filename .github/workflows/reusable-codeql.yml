@@ -1,0 +1,41 @@
+# Reusable workflow: CodeQL static analysis.
+#
+#   jobs:
+#     codeql:
+#       uses: shamwari-ai/.github/.github/workflows/reusable-codeql.yml@main
+#       with:
+#         languages: '["javascript-typescript"]'
+#
+# One of the checks ORG_STANDARDS.md notes shamwari's local ci.yml does not
+# run at all today.
+
+name: Reusable / CodeQL
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: JSON array of CodeQL languages, e.g. '["javascript-typescript","python"]'.
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: analyze
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(inputs.languages) }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

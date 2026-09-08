@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "Release tags are immutable once pushed. Without this, a v1.2.3 tag can",
+    "be moved to point at different code after the fact, which silently",
+    "invalidates anything that pinned it."
+  ],
+  "name": "release-tag-protection",
+  "target": "tag",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "include": ["refs/tags/v*"], "exclude": [] },
+    "repository_name": { "include": ["~ALL"], "exclude": [] }
+  },
+  "bypass_actors": [
+    { "actor_id": 1, "actor_type": "OrganizationAdmin", "bypass_mode": "always" }
+  ],
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    { "type": "update" }
+  ]
+}

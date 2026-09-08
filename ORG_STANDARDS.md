@@ -20,31 +20,43 @@ unless it says so.
 - **[shamwari-ai/docs](https://github.com/shamwari-ai/docs)** — the public
   product documentation site (docs.shamwari.ai). Org/governance standards
   don't belong there — that's what this file is for.
+- **The extraction repos**, created 2026-09-08 against the plan in
+  `shamwari`'s `docs/repo-split.md`:
+  [shamwari-gateway](https://github.com/shamwari-ai/shamwari-gateway),
+  [shamwari-web](https://github.com/shamwari-ai/shamwari-web),
+  [shamwari-platform](https://github.com/shamwari-ai/shamwari-platform),
+  [shamwari-core](https://github.com/shamwari-ai/shamwari-core), plus the
+  parked [shamwari-mind](https://github.com/shamwari-ai/shamwari-mind) and
+  [shamwari-sandbox](https://github.com/shamwari-ai/shamwari-sandbox).
+  All six are public. Only `shamwari-platform` has content; the other five
+  are deliberately empty so `git subtree split` can push history in without
+  a merge or a force.
 
-## Reusable workflows — there aren't any yet
+## Reusable workflows
 
 A reusable workflow is a `.yml` file under `.github/workflows/` with
 `on: workflow_call`, called from another repo with
-`uses: shamwari-ai/.github/.github/workflows/<name>.yml@main`. As of this
-writing, **this repo contains a single file: this one.** There is no
-`.github/workflows/` directory, no `CODEOWNERS`, no issue or PR templates,
-and no `SECURITY.md`.
+`uses: shamwari-ai/.github/.github/workflows/<name>.yml@main`.
 
-Practically, that means:
+As of **2026-09-08** this repo publishes six:
 
-- No repo in the org can currently `uses:` a shared workflow — there isn't
-  one to call.
-- A brand-new repo in the org inherits **nothing** automatically. It starts
-  with zero CI, zero PR template, zero required checks, until someone
-  copies them in by hand.
-- Everything described below as "CI" is `shamwari-ai/shamwari`'s own,
-  repo-local `.github/workflows/*.yml`. It is the closest thing the org has
-  to a reference implementation, but it is not shared or enforced outside
-  that one repo.
+| Workflow | For | Notes |
+|---|---|---|
+| `reusable-ci-node-npm.yml` | `shamwari-gateway` | typecheck / test / build jobs, each skippable by passing an empty script name |
+| `reusable-ci-astro-npm.yml` | `shamwari-web`, `shamwari-platform` | `npm run build` then `npm run check` — the repo-local `check.mjs`, kept as its own required step |
+| `reusable-ci-python-piptools.yml` | `shamwari-core` | `check_lock.py`, then `pip install --require-hashes`, then an import check |
+| `reusable-pr-title-lint.yml` | every repo | Conventional Commits on the PR title; third-party action pinned by SHA |
+| `reusable-gitleaks.yml` | every repo | runs the MIT-licensed binary directly, not the paid-licence wrapper action |
+| `reusable-codeql.yml` | every repo with code | static analysis; `shamwari`'s local `ci.yml` still doesn't run this |
 
-This is the largest concrete gap — see [Known gaps](#known-gaps). It is also
-not a green field: a mature, ready-to-adopt template already exists
-elsewhere in the ecosystem — see the next section.
+These are **npm-native and pip-tools-native forks**, not calls into
+`nyuchi/.github`. That is a deliberate choice, and the reason is in the next
+section: every JS reusable upstream hardcodes pnpm, and the Python one
+assumes a uv workspace. Forking also means this org pins its own action
+SHAs rather than inheriting whatever `@main` points at in another org.
+
+`required_status_checks` is deliberately **not** yet part of the ruleset —
+see [Branch and PR requirements](#branch-and-pr-requirements).
 
 ## Relationship to Nyuchi Africa's org-wide defaults
 
@@ -70,7 +82,7 @@ operating Shamwari gives it practical reason to keep its CI/governance
 tooling reusable. Nyuchi Africa runs a separate GitHub org —
 [`nyuchi`](https://github.com/nyuchi) — whose
 [`nyuchi/.github`](https://github.com/nyuchi/.github) repo is public and is
-exactly the kind of org-wide governance template this repo currently lacks:
+exactly the kind of org-wide governance template this repo was modelled on:
 
 - **Reusable workflows** under `.github/workflows/reusable-*.yml`, including
   `reusable-ci-typescript.yml`, `reusable-ci-typescript-lib.yml`,
@@ -202,27 +214,58 @@ PR number, not ref, since it only ever runs on `pull_request` events.
 
 ## Branch and PR requirements
 
-- **Conventional Commit PR titles** are enforced by the check above on
-  every PR against `shamwari-ai/shamwari`.
-- **CI must pass** on `main` and `claude/**` — see the trigger rationale
-  above if you're adding a workflow to a new repo.
-- **An automated review gate — "Claude Approvals" — is used on PRs in this
-  org.** This wasn't found codified as a workflow file, `CODEOWNERS` rule,
-  or branch-protection setting readable with this pass's credentials in any
-  of the three repos inspected (a direct branch-protection API read
-  returned `403`, not "not configured" — this pass simply couldn't see it,
-  so treat "not found in code" as "not yet inspectable," not "doesn't
-  exist"). It behaves like a required status check backed by a
-  bot/GitHub App rather than an in-repo workflow. Until someone with admin
-  access confirms and documents its exact configuration, don't assume this
-  page's silence on it means it isn't required — ask before relying on its
-  absence.
-- **No `CODEOWNERS` file exists** in any of the three repos, so review
-  routing is manual today — there's no automatic reviewer assignment by
-  path.
-- **No PR or issue template exists** in any of the three repos. Nothing in
-  `.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/`, or this
-  repo (the org default location).
+Since **2026-09-08** these are enforced by an org-level ruleset, defined as
+versioned JSON in [`github-rulesets/`](./github-rulesets/) and applied to
+the org. Previous versions of this page said branch protection "wasn't
+inspectable" — that was a token-scope problem, not a configuration one. Read
+with an `admin:org` token, the honest answer at the time was **nothing was
+configured at all**: no org rulesets, no repo rulesets, no branch protection
+on any repo.
+
+`org-wide-main-protection` applies to every repo's default branch:
+
+| Rule | Effect |
+|---|---|
+| `deletion` | The default branch cannot be deleted |
+| `non_fast_forward` | No force-pushes |
+| `required_linear_history` | Rebase, don't merge `main` into your branch |
+| `required_signatures` | Every commit must be signed |
+| `pull_request` | Changes land via PR, squash-merge only, review threads resolved |
+
+`release-tag-protection` makes `v*` tags immutable once pushed.
+
+Two choices worth understanding before you trip over them:
+
+- **`required_approving_review_count` is 0.** The org has one member. A
+  count of 1 would make every PR unmergeable by its own author — a lockout,
+  not a safeguard. Raise it to 1 the day a second maintainer joins.
+- **Organisation admins can bypass.** The repo split imports history with
+  `git subtree split` pushed straight to `main`, which the `pull_request`
+  rule would otherwise reject. Narrow or remove that bypass once the
+  extractions are done.
+
+**`required_status_checks` is deliberately absent.** Naming a check context
+that has never reported makes every PR permanently unmergeable. Add contexts
+only after CI has run at least once on that repo and you can read the exact
+job names off a completed run.
+
+- **Conventional Commit PR titles** are enforced by
+  `reusable-pr-title-lint.yml`. Because the org squash-merges, the PR title
+  becomes the commit subject on `main`.
+- **CI triggers must cover `main` and `claude/**`** — see the trigger
+  rationale above if you're adding a workflow to a new repo.
+- **`CODEOWNERS` now exists** at `.github/CODEOWNERS` in this repo, so it
+  applies org-wide by fallback. It names `@bryanfawcett` as the catch-all
+  owner and calls out the rule 1 paths explicitly. `require_code_owner_review`
+  is off in the ruleset while the org has one member.
+- **The "Claude Approvals" review gate is still not represented as code.**
+  This pass could read branch protection and rulesets successfully and found
+  none, so whatever that gate is, it is **not** a required status check or a
+  ruleset — it behaves like a GitHub App acting on PRs. Its configuration
+  still lives outside this repo.
+- **PR and issue templates now exist** in this repo, at
+  `.github/PULL_REQUEST_TEMPLATE.md` and `.github/ISSUE_TEMPLATE/`, and
+  apply org-wide by fallback.
 
 ## Best practices actually enforced (not aspirational)
 
@@ -251,41 +294,44 @@ nice:
 
 ## Known gaps
 
-These are real gaps, not proposals dressed up as documentation. Don't build
-against any of these as if they exist:
+Updated 2026-09-08. Gaps 1-3 and 5 below were closed in this pass; what
+remains is listed as remaining.
 
-1. **No reusable workflows adopted into this repo yet.** Every repo that
-   wants CI still writes it from scratch. A mature, ready-to-adopt set
-   already exists at `nyuchi/.github` (see
-   [Relationship to Nyuchi Africa's org-wide defaults](#relationship-to-nyuchi-africas-org-wide-defaults)
-   above) — the fix is copying/calling those, not lifting jobs out of
-   `shamwari-ai/shamwari`'s own `ci.yml` into a new workflow from scratch.
-   `core/`'s uv-workspace-vs-pip-compile mismatch and the org-wide
-   npm-vs-pnpm mismatch blocking every JS reusable (both above) need
-   resolving either way, and this page shouldn't be read as implying any
-   of it has happened yet.
-2. **No org-level defaults adopted** — no `CODEOWNERS`, no PR/issue
-   templates, no `SECURITY.md`, in this repo or any of the three repos.
-   `nyuchi/.github` already publishes `CODEOWNERS.example`,
-   `dependabot.example.yml`, and real templates/`SECURITY.md` to copy and
-   adapt (see above) — `CODEOWNERS` ownership itself is still a human
-   decision this page can't make. A new repo in `shamwari-ai` gets none of
-   this unless someone adds it by hand, every time.
-3. **The "Claude Approvals" review gate is not represented as code
-   anywhere this pass could inspect.** If it's a required status check, it
-   should be possible to see it in branch protection or a ruleset; this
-   pass's token got a `403` reading branch protection directly. Someone
-   with admin access should confirm its configuration and either document
-   it here or (better) codify it so it's reviewable and reproducible for a
-   new repo.
-4. **`shamwari-ai/docs` ships no CI of its own.** It's still the unmodified
-   Mintlify starter kit at the workflow level — nothing there checks
-   broken links, build failures, or the language-discipline rule that
-   `shamwari`'s `docs-site`/`site` enforce, even though that repo is
-   presumably subject to the same discipline.
-5. **Branch protection / rulesets for these repos aren't inspectable with
-   the credentials available to this pass** (org-level endpoints and the
-   branch-protection endpoint both came back inaccessible). Anything above
-   framed as "enforced" is enforced in the sense that CI runs and would
-   fail the check — whether it's also configured as a *required* check
-   that blocks merge could not be confirmed independently here.
+**Closed:**
+
+1. ~~No reusable workflows.~~ Six now published — see
+   [Reusable workflows](#reusable-workflows). They are npm/pip-tools forks
+   rather than `nyuchi/.github` calls, because the pnpm and uv mismatches
+   below are real and unresolved.
+2. ~~No org-level defaults.~~ `CODEOWNERS`, `PULL_REQUEST_TEMPLATE.md`,
+   `ISSUE_TEMPLATE/`, `SECURITY.md`, `CONTRIBUTING.md`,
+   `CODE_OF_CONDUCT.md`, `SUPPORT.md` and `dependabot.example.yml` now
+   exist here and apply org-wide by fallback.
+3. ~~Branch protection not inspectable.~~ It was a token-scope problem. With
+   `admin:org`, the answer was "nothing configured"; an org ruleset now
+   exists and is versioned in `github-rulesets/`.
+
+**Remaining:**
+
+4. **The npm-vs-pnpm and pip-compile-vs-uv mismatches still stand.** This
+   pass worked *around* them by forking npm-native and pip-tools-native
+   workflows rather than resolving them. If the org later wants to adopt
+   `nyuchi/.github`'s workflows directly, the JS stack still needs an
+   npm→pnpm migration and `core/` still needs a uv workspace. Neither is a
+   config tweak.
+5. **No `required_status_checks` in the ruleset yet.** Deliberate — a check
+   context that has never reported blocks every PR. Add them per repo once
+   CI has run once.
+6. **The "Claude Approvals" gate remains uncodified.** Now known *not* to be
+   a ruleset or branch protection, since both were read successfully and are
+   accounted for. Someone should identify the App behind it and document it.
+7. **`shamwari-ai/docs` still ships no CI.** A branch exists that adds it —
+   `claude/docs-ci`, one commit, unmerged — so this is unfinished work
+   rather than untouched ground.
+8. **Nothing is deployed yet.** `shamwari-gateway` and `shamwari-core` are
+   written and not deployed; `shamwari.knowledgeBase` is still empty. The
+   repo-split plan's own advice — "do not split before the demo works" —
+   still applies: these repos exist, but moving code into them competes with
+   the task that turns this into a working product.
+9. **Five of the six new repos are empty.** Only `shamwari-platform` has
+   content. The extractions themselves have not been done.

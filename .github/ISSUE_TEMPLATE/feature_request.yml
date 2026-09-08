@@ -1,0 +1,27 @@
+name: Feature request
+description: Propose a change in behaviour or a new capability.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What is hard or impossible today? Describe the situation, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: rules
+    attributes:
+      label: Interaction with rule 1 and rule 2
+      description: >
+        Does this involve routing, scopes, or licenceClass? If it moves data
+        between scopes or changes a destination, say so here — that is the
+        part that needs the most scrutiny.
+    validations:
+      required: false

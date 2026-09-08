@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/shamwari-ai/.github/security/advisories/new
+    about: Report privately. Do not open a public issue for a vulnerability.
+  - name: Product documentation
+    url: https://docs.shamwari.ai
+    about: How Shamwari works, endpoints, tiers and scopes.
+  - name: Architecture and governance
+    url: https://github.com/shamwari-ai/.github/blob/main/ORG_STANDARDS.md
+    about: What CI actually runs across the org, and the known gaps.

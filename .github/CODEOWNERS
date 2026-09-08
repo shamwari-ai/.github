@@ -1,0 +1,18 @@
+# Default owner for everything in every shamwari-ai repo that does not
+# define its own .github/CODEOWNERS.
+#
+# The org has one member today. This file exists so review routing is
+# explicit rather than implicit — when a second maintainer joins, add
+# path-specific lines above the catch-all rather than replacing it.
+#
+# GitHub applies the LAST matching pattern, so the catch-all stays first
+# only if nothing below it matches; keep new, narrower rules underneath.
+
+* @bryanfawcett
+
+# Rule 1 and rule 2 live in these paths. Changes here alter the scope gate
+# or the licenceClass invariant, so they should never merge unreviewed even
+# once other maintainers exist with broader write access.
+/gateway/src/scope.ts    @bryanfawcett
+/core/main.py            @bryanfawcett
+/db/                     @bryanfawcett

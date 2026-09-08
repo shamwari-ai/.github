@@ -1,0 +1,102 @@
+# Reusable workflow: Node/TypeScript CI on npm.
+#
+#   jobs:
+#     ci:
+#       uses: shamwari-ai/.github/.github/workflows/reusable-ci-node-npm.yml@main
+#       with:
+#         working-directory: .
+#
+# Deliberately npm, not pnpm. Every JS package in this org ships a
+# package-lock.json; nyuchi/.github's reusable-ci-typescript.yml hardcodes
+# pnpm/action-setup with no npm code path, so adopting it would require a
+# repo-wide npm->pnpm migration first. See ORG_STANDARDS.md.
+
+name: Reusable / Node CI (npm)
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory holding package.json.
+        type: string
+        default: "."
+      node-version:
+        description: Node major version.
+        type: string
+        default: "22"
+      typecheck-script:
+        description: npm script for type checking. Empty string skips the job.
+        type: string
+        default: "typecheck"
+      test-script:
+        description: npm script for tests. Empty string skips the job.
+        type: string
+        default: "test"
+      build-script:
+        description: npm script for the build. Empty string skips the job.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: types
+    if: ${{ inputs.typecheck-script != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ inputs.working-directory }}
+      - name: Type check
+        env:
+          SCRIPT: ${{ inputs.typecheck-script }}
+        run: npm run "$SCRIPT"
+        working-directory: ${{ inputs.working-directory }}
+
+  test:
+    name: tests
+    if: ${{ inputs.test-script != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ inputs.working-directory }}
+      # For shamwari-gateway these are the tests that cover the two rules
+      # that must not be broken: personal scope never resolves to a cloud
+      # destination, and the premium tier stays licenseClass 'restricted'.
+      - name: Unit tests
+        env:
+          SCRIPT: ${{ inputs.test-script }}
+        run: npm run "$SCRIPT"
+        working-directory: ${{ inputs.working-directory }}
+
+  build:
+    name: build
+    if: ${{ inputs.build-script != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ inputs.working-directory }}
+      - name: Build
+        env:
+          SCRIPT: ${{ inputs.build-script }}
+        run: npm run "$SCRIPT"
+        working-directory: ${{ inputs.working-directory }}

@@ -1,0 +1,46 @@
+name: Bug report
+description: Something behaves differently from what the docs or code claim.
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - gateway (Worker / edge API)
+        - core (FastAPI / MongoDB / Postgres)
+        - web (shamwari.ai)
+        - platform (platform.shamwari.ai)
+        - docs (docs.shamwari.ai)
+        - other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the exact error text or response body. Redact keys.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. POST /v1/chat/completions with scope=...
+        2. ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This report does not contain `personal`-scope data or any API key.
+          required: true

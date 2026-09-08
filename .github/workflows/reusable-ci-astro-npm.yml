@@ -1,0 +1,58 @@
+# Reusable workflow: Astro site CI on npm (build + repo-local checks).
+#
+#   jobs:
+#     ci:
+#       uses: shamwari-ai/.github/.github/workflows/reusable-ci-astro-npm.yml@main
+#
+# `astro check` covers types and MDX. It does NOT cover dead links and
+# assets, colours with no base :root token, stray client JS, the size
+# budget, or the language-discipline rules ("open weights", never "open
+# source model"). Those live in each site's own check.mjs, which is why
+# this workflow runs `npm run check` as a separate, required step rather
+# than folding it into the build.
+#
+# nyuchi/.github's reusable-ci-docs-mdx.yml runs cspell + lychee instead.
+# That is a different, non-overlapping set of checks — adopting it would
+# trade these away, not add to them. See ORG_STANDARDS.md.
+
+name: Reusable / Astro CI (npm)
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        type: string
+        default: "."
+      node-version:
+        type: string
+        default: "22"
+      check-script:
+        description: npm script for the repo-local checks. Empty string skips it.
+        type: string
+        default: "check"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ inputs.working-directory }}
+      - name: Build
+        run: npm run build
+        working-directory: ${{ inputs.working-directory }}
+      - name: Check (links, tokens, size, language discipline)
+        if: ${{ inputs.check-script != '' }}
+        env:
+          SCRIPT: ${{ inputs.check-script }}
+        run: npm run "$SCRIPT"
+        working-directory: ${{ inputs.working-directory }}
