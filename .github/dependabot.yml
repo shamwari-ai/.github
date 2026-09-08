@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # The reusable workflows here pin action versions on behalf of every repo
+  # in the org, so a stale pin propagates everywhere. This repo in
+  # particular should not rely on someone noticing by hand.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
