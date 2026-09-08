@@ -267,6 +267,35 @@ job names off a completed run.
   `.github/PULL_REQUEST_TEMPLATE.md` and `.github/ISSUE_TEMPLATE/`, and
   apply org-wide by fallback.
 
+## Repository settings
+
+Standardised across all nine repos on 2026-09-08. These are settings, not
+rules — the ruleset above governs what may land on a branch; these govern
+how the merge happens and what GitHub cleans up afterwards.
+
+| Setting | Value | Why |
+|---|---|---|
+| `allow_squash_merge` | true | The only permitted method; matches the ruleset's `allowed_merge_methods` |
+| `allow_merge_commit` | false | A merge commit would violate `required_linear_history` — the button is removed so it cannot be attempted |
+| `allow_rebase_merge` | false | Same |
+| `delete_branch_on_merge` | **true** | Was false everywhere. This is why eight already-merged branches were still sitting in `docs` and `.github` |
+| `allow_auto_merge` | true | Lets a PR land when checks go green without waiting on a human |
+| `squash_merge_commit_title` | `PR_TITLE` | The PR title is Conventional-Commit linted, so it should become the commit subject |
+| `squash_merge_commit_message` | `PR_BODY` | |
+| `has_wiki`, `has_projects` | false | Unused surfaces |
+| Dependabot alerts + security fixes | enabled | |
+| Secret scanning + push protection | enabled | Push protection blocks a secret before it reaches the remote; `gitleaks` in CI catches what is already committed. Both, not either |
+
+**The `delete_branch_on_merge` default is the interesting one.** With it off,
+every merged PR left its head branch behind, and those accumulate into
+something that looks like unfinished work but is not. Distinguishing the two
+takes a merge simulation, not a commit count: a squash-merged branch reports
+as "ahead" of `main` forever, because the squashed commit has a different
+SHA than anything on the branch. Comparing file contents is also misleading,
+since it reports differences in both directions. `git merge-tree --write-tree`
+against `main`'s tree is the test that actually answers "would merging this
+change anything".
+
 ## Best practices actually enforced (not aspirational)
 
 Pulled from what the workflow files actually do, not from what would be
@@ -325,9 +354,12 @@ remains is listed as remaining.
 6. **The "Claude Approvals" gate remains uncodified.** Now known *not* to be
    a ruleset or branch protection, since both were read successfully and are
    accounted for. Someone should identify the App behind it and document it.
-7. **`shamwari-ai/docs` still ships no CI.** A branch exists that adds it —
-   `claude/docs-ci`, one commit, unmerged — so this is unfinished work
-   rather than untouched ground.
+7. ~~`shamwari-ai/docs` ships no CI.~~ Closed. shamwari-ai/docs#9 added
+   build, broken-link, accessibility, language-discipline and secret-scan
+   jobs, the last calling this repo's `reusable-gitleaks.yml`. Its
+   accessibility gate uses **APCA 3.0**, Mzizi's stated standard, rather
+   than a WCAG ratio — see `scripts/check-contrast.mjs` in that repo for
+   why the distinction matters in practice.
 8. **Nothing is deployed yet.** `shamwari-gateway` and `shamwari-core` are
    written and not deployed; `shamwari.knowledgeBase` is still empty. The
    repo-split plan's own advice — "do not split before the demo works" —
