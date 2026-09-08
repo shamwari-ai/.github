@@ -29,6 +29,16 @@ permissions:
 jobs:
   lint:
     name: Conventional Commits
+    # Dependabot titles its PRs "ci: Bump actions/checkout from 6 to 7" —
+    # capital B, which subjectPattern rejects, and it offers no setting to
+    # lowercase that word (commit-message.prefix controls only the prefix).
+    # Relaxing the pattern to allow uppercase would weaken it for humans
+    # too, so bot PRs are skipped instead. Their titles are machine
+    # generated and already consistent; there is nothing for this check to
+    # catch. Add other bots here rather than loosening the pattern.
+    if: >-
+      ${{ github.event.pull_request.user.login != 'dependabot[bot]'
+          && github.event.pull_request.user.login != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:
       # Third-party action, pinned by commit SHA rather than tag: a tag can
