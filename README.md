@@ -7,15 +7,15 @@ org's reusable GitHub Actions workflows (`on: workflow_call`) live.
 
 ## What's here
 
-| Path | Applies to |
-|---|---|
-| `.github/CODEOWNERS` | Every repo without its own |
-| `.github/PULL_REQUEST_TEMPLATE.md` | Every repo without its own |
-| `.github/ISSUE_TEMPLATE/` | Every repo without its own |
-| `.github/workflows/reusable-*.yml` | Called explicitly with `uses:` |
-| `.github/dependabot.example.yml` | Copy per repo — Dependabot config does **not** inherit |
-| `github-rulesets/*.json` | The applied org ruleset, as reviewable JSON |
-| `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md` | Every repo without its own |
+| Path                                                                 | Applies to                                             |
+| -------------------------------------------------------------------- | ------------------------------------------------------ |
+| `.github/CODEOWNERS`                                                 | Every repo without its own                             |
+| `.github/PULL_REQUEST_TEMPLATE.md`                                   | Every repo without its own                             |
+| `.github/ISSUE_TEMPLATE/`                                            | Every repo without its own                             |
+| `.github/workflows/reusable-*.yml`                                   | Called explicitly with `uses:`                         |
+| `.github/dependabot.example.yml`                                     | Copy per repo — Dependabot config does **not** inherit |
+| `github-rulesets/*.json`                                             | The applied org ruleset, as reviewable JSON            |
+| `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md` | Every repo without its own                             |
 
 ## Using a reusable workflow
 

@@ -3,7 +3,7 @@
 ## Before you start
 
 Read `CLAUDE.md` in [`shamwari-ai/shamwari`](https://github.com/shamwari-ai/shamwari).
-It is the authoritative record of *why* several of the checks below exist,
+It is the authoritative record of _why_ several of the checks below exist,
 and it carries the applied-migration log for the live databases. This page
 does not restate that reasoning.
 
@@ -61,11 +61,11 @@ not a style preference.
 
 ## Running the checks locally
 
-| Repo | Command |
-|---|---|
-| `shamwari-gateway` | `npm ci && npm run typecheck && npm test` |
-| `shamwari-core` | `python check_lock.py && pip install --require-hashes -r requirements.txt` |
-| `shamwari-web`, `shamwari-platform` | `npm ci && npm run build && npm run check` |
+| Repo                                | Command                                                                    |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| `shamwari-gateway`                  | `npm ci && npm run typecheck && npm test`                                  |
+| `shamwari-core`                     | `python check_lock.py && pip install --require-hashes -r requirements.txt` |
+| `shamwari-web`, `shamwari-platform` | `npm ci && npm run build && npm run check`                                 |
 
 ## Reporting security issues
 

@@ -6,12 +6,12 @@
 
 ## Questions and bugs
 
-| What | Where |
-|---|---|
-| A bug in gateway, core, web or platform | An issue on the relevant repo |
-| A documentation error | An issue on [`shamwari-ai/docs`](https://github.com/shamwari-ai/docs/issues) |
-| CI, governance, org standards | An issue on [`shamwari-ai/.github`](https://github.com/shamwari-ai/.github/issues) |
-| A security vulnerability | **Not an issue** — see [SECURITY.md](./SECURITY.md) |
+| What                                    | Where                                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| A bug in gateway, core, web or platform | An issue on the relevant repo                                                      |
+| A documentation error                   | An issue on [`shamwari-ai/docs`](https://github.com/shamwari-ai/docs/issues)       |
+| CI, governance, org standards           | An issue on [`shamwari-ai/.github`](https://github.com/shamwari-ai/.github/issues) |
+| A security vulnerability                | **Not an issue** — see [SECURITY.md](./SECURITY.md)                                |
 
 ## What helps
 
