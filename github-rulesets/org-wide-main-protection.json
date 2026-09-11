@@ -26,10 +26,17 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] },
-    "repository_name": { "include": ["~ALL"], "exclude": ["sandbox-*", "archive-*"] }
+    "repository_name": {
+      "include": ["~ALL"],
+      "exclude": ["sandbox-*", "archive-*"]
+    }
   },
   "bypass_actors": [
-    { "actor_id": 1, "actor_type": "OrganizationAdmin", "bypass_mode": "always" }
+    {
+      "actor_id": 1,
+      "actor_type": "OrganizationAdmin",
+      "bypass_mode": "always"
+    }
   ],
   "rules": [
     { "type": "deletion" },

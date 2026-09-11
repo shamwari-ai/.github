@@ -14,7 +14,7 @@ unless it says so.
   templates, `CODEOWNERS`, or `SECURITY.md`.
 - **[shamwari-ai/shamwari](https://github.com/shamwari-ai/shamwari)** — the
   product monorepo (`gateway/`, `core/`, `docs-site/`, `site/`). Its
-  `CLAUDE.md` is the authoritative source for *why* several of these checks
+  `CLAUDE.md` is the authoritative source for _why_ several of these checks
   exist; this page doesn't restate that reasoning, it maps it onto the CI
   that runs.
 - **[shamwari-ai/docs](https://github.com/shamwari-ai/docs)** — the public
@@ -40,14 +40,14 @@ A reusable workflow is a `.yml` file under `.github/workflows/` with
 
 As of **2026-09-08** this repo publishes six:
 
-| Workflow | For | Notes |
-|---|---|---|
-| `reusable-ci-node-npm.yml` | `shamwari-gateway` | typecheck / test / build jobs, each skippable by passing an empty script name |
-| `reusable-ci-astro-npm.yml` | `shamwari-web`, `shamwari-platform` | `npm run build` then `npm run check` — the repo-local `check.mjs`, kept as its own required step |
-| `reusable-ci-python-piptools.yml` | `shamwari-core` | `check_lock.py`, then `pip install --require-hashes`, then an import check |
-| `reusable-pr-title-lint.yml` | every repo | Conventional Commits on the PR title; third-party action pinned by SHA |
-| `reusable-gitleaks.yml` | every repo | runs the MIT-licensed binary directly, not the paid-licence wrapper action |
-| `reusable-codeql.yml` | every repo with code | static analysis; `shamwari`'s local `ci.yml` still doesn't run this |
+| Workflow                          | For                                 | Notes                                                                                            |
+| --------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `reusable-ci-node-npm.yml`        | `shamwari-gateway`                  | typecheck / test / build jobs, each skippable by passing an empty script name                    |
+| `reusable-ci-astro-npm.yml`       | `shamwari-web`, `shamwari-platform` | `npm run build` then `npm run check` — the repo-local `check.mjs`, kept as its own required step |
+| `reusable-ci-python-piptools.yml` | `shamwari-core`                     | `check_lock.py`, then `pip install --require-hashes`, then an import check                       |
+| `reusable-pr-title-lint.yml`      | every repo                          | Conventional Commits on the PR title; third-party action pinned by SHA                           |
+| `reusable-gitleaks.yml`           | every repo                          | runs the MIT-licensed binary directly, not the paid-licence wrapper action                       |
+| `reusable-codeql.yml`             | every repo with code                | static analysis; `shamwari`'s local `ci.yml` still doesn't run this                              |
 
 These are **npm-native and pip-tools-native forks**, not calls into
 `nyuchi/.github`. That is a deliberate choice, and the reason is in the next
@@ -66,15 +66,15 @@ of them — siblings, not parent and child.** Per [bundu.org](https://bundu.org)
 Shamwari AI (community)." Nyuchi Africa is the commercial pillar; Shamwari AI
 is the community pillar. Shamwari's IP is owned by Bundu Foundation and, per
 bundu.org, is "implemented across Nyuchi and Mukoko surfaces and sold
-commercially under Nyuchi" — Nyuchi is Shamwari's commercial *operator*, not
+commercially under Nyuchi" — Nyuchi is Shamwari's commercial _operator_, not
 its corporate parent. This matches `shamwari-ai/shamwari`'s own `CLAUDE.md`
 exactly: "IP owner: Bundu Foundation (Zimbabwe CLG) · Sold commercially
 under: Nyuchi Africa." (That same `CLAUDE.md` flags a known upstream
 inconsistency worth being precise about here: a separate Mzizi-registry
-source reportedly describes three pillars with Nyuchi as *parent* — that
+source reportedly describes three pillars with Nyuchi as _parent_ — that
 version contradicts bundu.org and should not be treated as authoritative.)
 
-That sibling relationship — not a parent/subsidiary one — is *why* looking
+That sibling relationship — not a parent/subsidiary one — is _why_ looking
 at Nyuchi's own governance is useful here: both pillars share "the same
 identity layer, the same design system, the same engineering doctrine"
 (bundu.org) under the same Foundation, and Nyuchi's commercial role in
@@ -111,7 +111,7 @@ exactly the kind of org-wide governance template this repo was modelled on:
 
 **None of this reaches `shamwari-ai` automatically.** `nyuchi` and
 `shamwari-ai` are separate GitHub orgs. The fallback mechanism that makes
-this repo apply to any repo *inside* `shamwari-ai` is scoped to that one
+this repo apply to any repo _inside_ `shamwari-ai` is scoped to that one
 org — it has no cross-org equivalent. Nothing in `nyuchi/.github` currently
 propagates into `shamwari-ai` on its own; every adoption is a deliberate
 copy (for templates, `CODEOWNERS`, `SECURITY.md`) or an explicit
@@ -179,13 +179,13 @@ triggers to `main` alone is the mistake this pattern exists to avoid.
 
 ### The `ci.yml` jobs
 
-| Job | What it does | Why |
-|---|---|---|
-| **gateway** | `npm run typecheck` and `npm test` in `gateway/` | Per `CLAUDE.md`, gateway unit tests are what cover the two rules that must not be broken: personal-scope requests never resolve to a cloud destination, and the premium tier stays `licenseClass: restricted`. |
-| **core** | `python check_lock.py`, then `pip install --require-hashes -r requirements.txt`, then an import check | `core/requirements.txt` is generated by `pip-compile --generate-hashes` from the hand-edited `requirements.in` and must never be hand-edited. `check_lock.py` fails if the spec names something the lock doesn't pin, offline and before install, so a stale lock is named as such instead of surfacing as a confusing `ImportError`. `--require-hashes` is there so a dependency line *without* a hash fails the install, rather than quietly weakening the guarantee for the whole file. |
-| **docs-site** | `npm run build`, then `npm run check` | `astro check` covers types/MDX; the repo's own `check.mjs` covers what it can't — dead links/assets, colors with no base `:root` token, stray client JS, a size budget, and the "open weights" language-discipline wording rule. |
-| **site** | Same shape as `docs-site`, for the marketing site | Same rationale, applied to `site/`. |
-| **gitleaks** | Downloads the `gitleaks` binary directly and runs `gitleaks detect --source . --redact --no-banner --verbose` | The `gitleaks/gitleaks-action` wrapper now requires a paid license for org repos; the underlying binary is still MIT-licensed, so the workflow runs it directly to keep the scan free. |
+| Job           | What it does                                                                                                  | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **gateway**   | `npm run typecheck` and `npm test` in `gateway/`                                                              | Per `CLAUDE.md`, gateway unit tests are what cover the two rules that must not be broken: personal-scope requests never resolve to a cloud destination, and the premium tier stays `licenseClass: restricted`.                                                                                                                                                                                                                                                                             |
+| **core**      | `python check_lock.py`, then `pip install --require-hashes -r requirements.txt`, then an import check         | `core/requirements.txt` is generated by `pip-compile --generate-hashes` from the hand-edited `requirements.in` and must never be hand-edited. `check_lock.py` fails if the spec names something the lock doesn't pin, offline and before install, so a stale lock is named as such instead of surfacing as a confusing `ImportError`. `--require-hashes` is there so a dependency line _without_ a hash fails the install, rather than quietly weakening the guarantee for the whole file. |
+| **docs-site** | `npm run build`, then `npm run check`                                                                         | `astro check` covers types/MDX; the repo's own `check.mjs` covers what it can't — dead links/assets, colors with no base `:root` token, stray client JS, a size budget, and the "open weights" language-discipline wording rule.                                                                                                                                                                                                                                                           |
+| **site**      | Same shape as `docs-site`, for the marketing site                                                             | Same rationale, applied to `site/`.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **gitleaks**  | Downloads the `gitleaks` binary directly and runs `gitleaks detect --source . --redact --no-banner --verbose` | The `gitleaks/gitleaks-action` wrapper now requires a paid license for org repos; the underlying binary is still MIT-licensed, so the workflow runs it directly to keep the scan free.                                                                                                                                                                                                                                                                                                     |
 
 `ci.yml` sets one `concurrency` group for the whole workflow —
 `${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: true` — so
@@ -205,7 +205,7 @@ PR number, not ref, since it only ever runs on `pull_request` events.
 - No required scope.
 - Subject must start lowercase, read as an imperative, and not end in a
   period.
-- `wip: true` — exempts titles that literally *start with* `wip` (case
+- `wip: true` — exempts titles that literally _start with_ `wip` (case
   insensitive), e.g. `wip: still figuring out the schema`. This is **not**
   the same thing as GitHub's draft-PR flag: a draft PR with an ordinary
   title still gets checked and can still fail. (PR #24 in
@@ -224,13 +224,13 @@ on any repo.
 
 `org-wide-main-protection` applies to every repo's default branch:
 
-| Rule | Effect |
-|---|---|
-| `deletion` | The default branch cannot be deleted |
-| `non_fast_forward` | No force-pushes |
-| `required_linear_history` | Rebase, don't merge `main` into your branch |
-| `required_signatures` | Every commit must be signed |
-| `pull_request` | Changes land via PR, squash-merge only, review threads resolved |
+| Rule                      | Effect                                                          |
+| ------------------------- | --------------------------------------------------------------- |
+| `deletion`                | The default branch cannot be deleted                            |
+| `non_fast_forward`        | No force-pushes                                                 |
+| `required_linear_history` | Rebase, don't merge `main` into your branch                     |
+| `required_signatures`     | Every commit must be signed                                     |
+| `pull_request`            | Changes land via PR, squash-merge only, review threads resolved |
 
 `release-tag-protection` makes `v*` tags immutable once pushed.
 
@@ -273,18 +273,18 @@ Standardised across all nine repos on 2026-09-08. These are settings, not
 rules — the ruleset above governs what may land on a branch; these govern
 how the merge happens and what GitHub cleans up afterwards.
 
-| Setting | Value | Why |
-|---|---|---|
-| `allow_squash_merge` | true | The only permitted method; matches the ruleset's `allowed_merge_methods` |
-| `allow_merge_commit` | false | A merge commit would violate `required_linear_history` — the button is removed so it cannot be attempted |
-| `allow_rebase_merge` | false | Same |
-| `delete_branch_on_merge` | **true** | Was false everywhere. This is why eight already-merged branches were still sitting in `docs` and `.github` |
-| `allow_auto_merge` | true | Lets a PR land when checks go green without waiting on a human |
-| `squash_merge_commit_title` | `PR_TITLE` | The PR title is Conventional-Commit linted, so it should become the commit subject |
-| `squash_merge_commit_message` | `PR_BODY` | |
-| `has_wiki`, `has_projects` | false | Unused surfaces |
-| Dependabot alerts + security fixes | enabled | |
-| Secret scanning + push protection | enabled | Push protection blocks a secret before it reaches the remote; `gitleaks` in CI catches what is already committed. Both, not either |
+| Setting                            | Value      | Why                                                                                                                                |
+| ---------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `allow_squash_merge`               | true       | The only permitted method; matches the ruleset's `allowed_merge_methods`                                                           |
+| `allow_merge_commit`               | false      | A merge commit would violate `required_linear_history` — the button is removed so it cannot be attempted                           |
+| `allow_rebase_merge`               | false      | Same                                                                                                                               |
+| `delete_branch_on_merge`           | **true**   | Was false everywhere. This is why eight already-merged branches were still sitting in `docs` and `.github`                         |
+| `allow_auto_merge`                 | true       | Lets a PR land when checks go green without waiting on a human                                                                     |
+| `squash_merge_commit_title`        | `PR_TITLE` | The PR title is Conventional-Commit linted, so it should become the commit subject                                                 |
+| `squash_merge_commit_message`      | `PR_BODY`  |                                                                                                                                    |
+| `has_wiki`, `has_projects`         | false      | Unused surfaces                                                                                                                    |
+| Dependabot alerts + security fixes | enabled    |                                                                                                                                    |
+| Secret scanning + push protection  | enabled    | Push protection blocks a secret before it reaches the remote; `gitleaks` in CI catches what is already committed. Both, not either |
 
 **The `delete_branch_on_merge` default is the interesting one.** With it off,
 every merged PR left its head branch behind, and those accumulate into
@@ -342,28 +342,28 @@ remains is listed as remaining.
 
 **Remaining:**
 
-4. **The npm-vs-pnpm and pip-compile-vs-uv mismatches still stand.** This
-   pass worked *around* them by forking npm-native and pip-tools-native
+1. **The npm-vs-pnpm and pip-compile-vs-uv mismatches still stand.** This
+   pass worked _around_ them by forking npm-native and pip-tools-native
    workflows rather than resolving them. If the org later wants to adopt
    `nyuchi/.github`'s workflows directly, the JS stack still needs an
    npm→pnpm migration and `core/` still needs a uv workspace. Neither is a
    config tweak.
-5. **No `required_status_checks` in the ruleset yet.** Deliberate — a check
+2. **No `required_status_checks` in the ruleset yet.** Deliberate — a check
    context that has never reported blocks every PR. Add them per repo once
    CI has run once.
-6. **The "Claude Approvals" gate remains uncodified.** Now known *not* to be
+3. **The "Claude Approvals" gate remains uncodified.** Now known _not_ to be
    a ruleset or branch protection, since both were read successfully and are
    accounted for. Someone should identify the App behind it and document it.
-7. ~~`shamwari-ai/docs` ships no CI.~~ Closed. shamwari-ai/docs#9 added
+4. ~~`shamwari-ai/docs` ships no CI.~~ Closed. shamwari-ai/docs#9 added
    build, broken-link, accessibility, language-discipline and secret-scan
    jobs, the last calling this repo's `reusable-gitleaks.yml`. Its
    accessibility gate uses **APCA 3.0**, Mzizi's stated standard, rather
    than a WCAG ratio — see `scripts/check-contrast.mjs` in that repo for
    why the distinction matters in practice.
-8. **Nothing is deployed yet.** `shamwari-gateway` and `shamwari-core` are
+5. **Nothing is deployed yet.** `shamwari-gateway` and `shamwari-core` are
    written and not deployed; `shamwari.knowledgeBase` is still empty. The
    repo-split plan's own advice — "do not split before the demo works" —
    still applies: these repos exist, but moving code into them competes with
    the task that turns this into a working product.
-9. **Five of the six new repos are empty.** Only `shamwari-platform` has
+6. **Five of the six new repos are empty.** Only `shamwari-platform` has
    content. The extractions themselves have not been done.

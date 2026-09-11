@@ -12,7 +12,11 @@
     "repository_name": { "include": ["~ALL"], "exclude": [] }
   },
   "bypass_actors": [
-    { "actor_id": 1, "actor_type": "OrganizationAdmin", "bypass_mode": "always" }
+    {
+      "actor_id": 1,
+      "actor_type": "OrganizationAdmin",
+      "bypass_mode": "always"
+    }
   ],
   "rules": [
     { "type": "deletion" },
