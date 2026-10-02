@@ -1,43 +1,18 @@
 {
-  "_comment": [
-    "Org-wide protection for every repo's default branch. Applied to the",
-    "shamwari-ai org; kept here so the configuration is reviewable and",
-    "reproducible rather than existing only in the GitHub dashboard.",
-    "",
-    "Two deliberate choices, both driven by the org's actual shape:",
-    "",
-    "1. required_approving_review_count is 0. The org has one member. A",
-    "   count of 1 would make every PR unmergeable by its own author, which",
-    "   is a lockout, not a safeguard. The pull_request rule still forces",
-    "   changes through a PR with resolved review threads; raise this to 1",
-    "   the day a second maintainer joins.",
-    "",
-    "2. bypass_actors grants OrganizationAdmin an always-bypass. The repo",
-    "   split imports history with `git subtree split` pushed straight to",
-    "   main; that is a direct push and the pull_request rule would reject",
-    "   it. Narrow or remove this once the extractions are done.",
-    "",
-    "required_status_checks is deliberately absent. Naming a check that has",
-    "never run makes every PR unmergeable — add contexts here only after CI",
-    "has reported them at least once on that repo."
-  ],
   "name": "org-wide-main-protection",
   "target": "branch",
   "enforcement": "active",
   "conditions": {
-    "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] },
+    "ref_name": {
+      "include": ["~DEFAULT_BRANCH"],
+      "exclude": []
+    },
     "repository_name": {
       "include": ["~ALL"],
       "exclude": ["sandbox-*", "archive-*"]
     }
   },
-  "bypass_actors": [
-    {
-      "actor_id": 1,
-      "actor_type": "OrganizationAdmin",
-      "bypass_mode": "always"
-    }
-  ],
+  "bypass_actors": [],
   "rules": [
     { "type": "deletion" },
     { "type": "non_fast_forward" },
@@ -52,6 +27,20 @@
         "require_last_push_approval": false,
         "required_review_thread_resolution": true,
         "allowed_merge_methods": ["squash"]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          { "context": "lint / actionlint" },
+          { "context": "lint / JSON validity" },
+          { "context": "lint / prettier" },
+          { "context": "lint / markdownlint" },
+          { "context": "lint / yamllint" }
+        ]
       }
     }
   ]
