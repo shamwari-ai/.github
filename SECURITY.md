@@ -7,7 +7,7 @@ Advisories:
 
 <https://github.com/shamwari-ai/.github/security/advisories/new>
 
-If that is not available to you, email **<security@shamwari.ai>** and expect
+If that is not available to you, email **<security@nyuchi.com>** and expect
 an acknowledgement within three working days.
 
 Include what you can: the affected component, a reproduction, and the impact
