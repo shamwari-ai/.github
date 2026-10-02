@@ -19,6 +19,7 @@ org's reusable GitHub Actions workflows (`on: workflow_call`) live.
 
 | Path                                                                 | Applies to                                             |
 | -------------------------------------------------------------------- | ------------------------------------------------------ |
+| `profile/README.md`                                                  | The org page at <https://github.com/shamwari-ai>       |
 | `.github/CODEOWNERS`                                                 | Every repo without its own                             |
 | `.github/PULL_REQUEST_TEMPLATE.md`                                   | Every repo without its own                             |
 | `.github/ISSUE_TEMPLATE/`                                            | Every repo without its own                             |
