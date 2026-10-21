@@ -4,6 +4,7 @@ updates:
   # in the org, so a stale pin propagates everywhere. This repo in
   # particular should not rely on someone noticing by hand.
   - package-ecosystem: github-actions
+    target-branch: "staging"
     directory: "/"
     schedule:
       interval: weekly
