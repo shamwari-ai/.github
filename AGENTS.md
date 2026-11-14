@@ -80,19 +80,39 @@ upper bound; an old version blocks, the latest never does. Third-party
 selectors known to break across majors, and runtime dependencies of
 published packages, are capped within their major (`>=x <next-major`).
 
-## Branches, versions and merging
+## Branches, releases and merging
 
-- Branch off `staging` and open pull requests into `staging`, as drafts.
-  Agent branches start with `claude/` (or the agent's own prefix).
-- Each merge into `staging` is tagged as the next patch and each release to
-  `main` as the next minor (`staging-version.yml`, using `nyuchi/.github`'s
-  versioning policy). Never hand-edit a version to a major.
+- Work branches off `staging` and PRs land in `staging`. Each merge into
+  `staging` is tagged the next patch (`staging-version.yml`); a release to
+  `main` tags the next minor. Both use `nyuchi/.github`'s versioning
+  policy, pinned by SHA. Never hand-edit a version to a major.
+- Branch prefixes: `feat/`, `fix/`, `docs/`, or `claude/` for agent work.
 - PR titles are Conventional Commits: lowercase, imperative subject, no
-  trailing period.
-- The org squash-merges, so the PR title becomes the commit subject on `main`. Keep history linear: rebase, never merge `main` into your branch.
-- One writer per branch. Land with `gh pr merge <n> --auto`, which joins the
-  merge queue where a branch requires one. Treat GitHub 5xx errors and "merge
-  already in progress" as a wait, not a failure.
+  trailing period (a subject starting with an all-caps word fails).
+- Merges into `staging` are squash through the merge queue
+  (`gh pr merge <n> --squash --auto`); the squash body keeps every commit
+  message (`COMMIT_MESSAGES`). Updating a branch with its base is fine.
+- `staging` is promoted to `main` with a **merge commit**, never squash:
+  a merge commit keeps `main` at `staging` plus one merge, so the next
+  release cannot conflict and nothing diverges.
+- The default branch takes releases only: a PR into `main` must come from
+  `staging`, a `release/*` branch, or the registry pin bot
+  (`bot/registry-pin`). Everything else — features, fixes, Dependabot —
+  targets `staging`.
+- Anything that reaches `main` outside a release (hotfix, pin bot) is
+  forward-ported to `staging` before the next release; the release check
+  blocks the release until then (the `forward-ported` label).
+- One writer per branch. Land with `gh pr merge <n> --auto`, which joins
+  the merge queue; every workflow whose check is required must also
+  trigger on `merge_group:`. Treat GitHub 5xx and "merge already in
+  progress" as a wait, not a failure.
+- Shared workflows are pinned estate-wide, every repo at the same commit:
+  `nyuchi/.github/.github/workflows/<workflow>.yml@<40-hex sha>  # vX.Y.Z`
+  (two spaces before `#`); Dependabot raises the pin after each release.
+  Never `@main`, never a bare SHA without its tag comment.
+- Advisory waivers are org-level only (`AUDIT_ALLOW_GHSAS` in
+  `nyuchi/.github`), each with a reason and a review date; a repo cannot
+  waive its own advisory.
 
 ## Checks that gate every pull request
 
